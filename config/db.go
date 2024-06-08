@@ -1,10 +1,10 @@
-// config/db.go
 package db
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,11 +14,9 @@ import (
 
 var Client *mongo.Client
 
-// Replace the placeholder with your Atlas connection string
-const uri = "mongodb+srv://aash:root@karya.sws8xul.mongodb.net/?retryWrites=true&w=majority&appName=karya"
-
 func Connect() {
-	// Use the SetServerAPIOptions() method to set the Stable API version to 1
+	uri := os.Getenv("MONGO_DB_URI")
+	fmt.Println("URI:", uri)
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
@@ -44,7 +42,7 @@ func pingDB(client *mongo.Client) error {
 
 	// Send a ping to confirm a successful connection
 	var result bson.M
-	if err := client.Database("admin").RunCommand(ctx, bson.D{{"ping", 1}}).Decode(&result); err != nil {
+	if err := client.Database("admin").RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Decode(&result); err != nil {
 		return err
 	}
 

@@ -14,9 +14,19 @@ type Vendor struct {
 
 // VendorProfile represents the profile information of a vendor
 type VendorProfile struct {
-	ID       string    `json:"p_id" bson:"p_id,omitempty"`
-	Name     string    `json:"name" bson:"name"`
-	Email    string    `json:"email" bson:"email"`
-	PhoneNo  string    `json:"phone_no" bson:"phone_no"`
-	JoinedAt time.Time `json:"joined_at" bson:"joined_at"`
+	ProfileID   string     `json:"p_id" bson:"p_id"`
+	Name        Name       `json:"name" bson:"name"`
+	Age         int        `json:"age" bson:"age"`
+	Sex         string     `json:"sex" bson:"sex"`
+	Email       string     `json:"email" bson:"email"`
+	PhoneNumber string     `json:"phone_no" bson:"phone_no"`
+	JoinedAt    time.Time  `json:"joined_at" bson:"joined_at"`
+	Rating      float32    `json:"rating" bson:"rating"`
+	Industries  []Industry `json:"industries" bson:"industries"`
+}
+
+type Name struct {
+	FirstName  string `json:"first_name" bson:"first_name"`
+	MiddleName string `json:"middle_name" bson:"middle_name"`
+	LastName   string `json:"last_name" bson:"last_name"`
 }

@@ -1,8 +1,8 @@
-// controller/vendor.go
 package controllers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	db "karya-auth/config"
@@ -21,7 +21,7 @@ func RegisterVendor(c *fiber.Ctx) error {
 	}
 
 	// Validate fields
-	if vendor.Username == "" || vendor.Password == "" || vendor.Profile.Name == "" || vendor.Profile.Email == "" || vendor.Profile.PhoneNo == "" {
+	if vendor.Username == "" || vendor.Password == "" || vendor.Profile.Name.FirstName == "" || vendor.Profile.Name.LastName == "" || vendor.Profile.Email == "" || vendor.Profile.PhoneNumber == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "All fields are required"})
 	}
 
@@ -41,7 +41,13 @@ func RegisterVendor(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to register vendor"})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Vendor registered successfully"})
+	token, err := generateJWT(vendor.Username, "vendor")
+	if err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
+	}
+	return c.JSON(fiber.Map{"token": token})
+
 }
 
 func insertVendor(vendor models.Vendor) error {
