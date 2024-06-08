@@ -33,6 +33,8 @@ func Connect() {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
 
+	createIndexes()
+
 	fmt.Println("Successfully connected to MongoDB")
 }
 
@@ -53,4 +55,27 @@ func pingDB(client *mongo.Client) error {
 func GetCollection(collectionName string) *mongo.Collection {
 	databaseName := "karya-test" // Replace with your actual database name
 	return Client.Database(databaseName).Collection(collectionName)
+}
+
+func createIndexes() {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	vendorsCollection := GetCollection("vendors")
+	recruitersCollection := GetCollection("recruiters")
+
+	indexModel := mongo.IndexModel{
+		Keys:    bson.D{{Key: "username", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	}
+
+	if _, err := vendorsCollection.Indexes().CreateOne(ctx, indexModel); err != nil {
+		log.Fatalf("Failed to create index for vendors: %v", err)
+	}
+
+	if _, err := recruitersCollection.Indexes().CreateOne(ctx, indexModel); err != nil {
+		log.Fatalf("Failed to create index for recruiters: %v", err)
+	}
+
+	fmt.Println("Indexes created successfully!")
 }

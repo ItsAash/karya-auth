@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	db "karya-auth/config"
 	"karya-auth/models"
+	"karya-auth/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -39,7 +42,10 @@ func RegisterRecruiter(c *fiber.Ctx) error {
 	// Insert recruiter into database
 	err = insertRecruiter(recruiter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to register worker"})
+		if mongo.IsDuplicateKeyError(err) {
+			return utils.JSONResponse(c, http.StatusBadRequest, false, "Username already exists", nil)
+		}
+		return utils.JSONResponse(c, http.StatusInternalServerError, false, "Failed to register vendor", nil)
 	}
 
 	token, err := generateJWT(recruiter.Username, "recruiter")
